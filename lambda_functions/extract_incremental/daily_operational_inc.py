@@ -98,24 +98,27 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': 'No data retrieved.'}
     
-    # Convert DataFrame to parquet
-    #csv_buffer = df.to_csv(index=False)
-    parquet_buffer = BytesIO()
-    df.to_parquet(parquet_buffer, index=False)
+    # Convert DataFrame to CSV
+    csv_buffer = df.to_csv(index=False)
     
-    # S3 Upload
+    # S3 Upload Configuration
     s3 = boto3.client('s3')
-    filename = f"daily_electricity_data_{previous_day}.parquet"
+    filename = f"daily_electricity_data_{previous_day}.csv"
     
     try:
-        s3.put_object(Bucket=s3_bucket, Key='incremental/'+filename, Body=parquet_buffer)
+        # Upload CSV to S3
+        s3.put_object(
+            Bucket=s3_bucket,
+            Key=f'incremental/{filename}',
+            Body=csv_buffer.encode('utf-8')  # Encode string to bytes
+        )
         print(f"File {filename} uploaded successfully to {s3_bucket}")
     except Exception as e:
-        error_message = f"Failed to upload file: {e}"
+        error_message = f"Failed to upload CSV file: {e}"
         print(error_message)
-        send_email("Lambda S3 Upload Failure", error_message)
+        send_email("Lambda S3 Upload Failure", error_message)  # Ensure send_email is defined
     
     return {
         'statusCode': 200,
-        'body': 'Daily incremental electricity operational data uploaded to S3'
+        'body': 'Daily electricity operational data uploaded to S3'
     }

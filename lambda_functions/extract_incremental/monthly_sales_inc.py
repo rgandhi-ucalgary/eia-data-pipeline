@@ -5,9 +5,7 @@ import time
 import requests
 import pandas as pd
 import boto3
-import os
 import smtplib
-from io import BytesIO
 from email.mime.text import MIMEText
 from datetime import datetime, timedelta, timezone
 
@@ -106,23 +104,26 @@ def lambda_handler(event, context):
         'statusCode': 200,
         'body': 'No data retrieved.'}
     
-    # Convert DataFrame to parquet
-    #csv_buffer = df.to_csv(index=False)
-    parquet_buffer = BytesIO()
-    df.to_parquet(parquet_buffer, index=False)
+    # Convert DataFrame to CSV
+    csv_buffer = df.to_csv(index=False)
     
-    
-    # S3 Upload
+    # S3 Upload Configuration
     s3 = boto3.client('s3')
-    filename = f"monthly_sales_data_{previous_month}.parquet"
+    filename = f"monthly_sales_data_{previous_month}.csv"
     
     try:
-        s3.put_object(Bucket=s3_bucket, Key='eia_data/'+filename, Body=parquet_buffer)
+        # Upload CSV to S3
+        s3.put_object(
+            Bucket=s3_bucket,
+            Key=f'incremental/{filename}',
+            Body=csv_buffer.encode('utf-8')  # Encode string to bytes
+        )
         print(f"File {filename} uploaded successfully to {s3_bucket}")
     except Exception as e:
-        error_message = f"Failed to upload file: {e}"
+        error_message = f"Failed to upload CSV file: {e}"
         print(error_message)
-        send_email("Lambda S3 Upload Failure", error_message)
+        send_email("Lambda S3 Upload Failure", error_message)  # Ensure send_email is defined
+    
     
     return {
         'statusCode': 200,
