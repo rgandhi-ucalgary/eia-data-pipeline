@@ -1,0 +1,5 @@
+boto3==1.37.18
+pandas==2.2.3
+prophet==1.1.6
+seaborn==0.13.2
+streamlit==1.44.0

@@ -1,8 +1,0 @@
-eia:
-  api_key: "IMfkhjoHhVWEfukqn3Q6BWs0SeHMGECzNXXds9lt"
-
-aws:
-  access_key: "AKIAXXXXXXXXXXXXXXXX"
-  secret_key: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-  region: "us-east-1"
-  s3_bucket: "eia-data-ucalgary"
